@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'camera_screen.dart';
+import 'image_preview_screen.dart';
 
 class DeclutterScreen extends StatelessWidget {
   const DeclutterScreen({Key? key}) : super(key: key);
@@ -53,8 +55,33 @@ class DeclutterScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextButton.icon(
-              onPressed: () {
-                // TODO: ギャラリーから選択
+              onPressed: () async {
+                final ImagePicker picker = ImagePicker();
+                try {
+                  final XFile? image = await picker.pickImage(
+                    source: ImageSource.gallery,
+                    maxWidth: 1920,
+                    maxHeight: 1920,
+                    imageQuality: 85,
+                  );
+                  
+                  if (image != null) {
+                    // 画像プレビュー画面へ遷移
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ImagePreviewScreen(
+                          imagePath: image.path,
+                          mode: 'declutter',
+                        ),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('画像の選択に失敗しました: $e')),
+                  );
+                }
               },
               icon: const Icon(Icons.photo_library),
               label: const Text('ギャラリーから選択'),

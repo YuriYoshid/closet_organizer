@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'image_preview_screen.dart';
 
 class CameraScreen extends StatefulWidget {
   final String mode;
@@ -25,32 +26,69 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _initializeCamera() async {
-    // カメラ権限をリクエスト
-    final status = await Permission.camera.request();
-    if (status != PermissionStatus.granted) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('カメラへのアクセスが必要です')),
-        );
-        Navigator.pop(context);
-      }
-      return;
-    }
-
-    // 利用可能なカメラを取得
-    _cameras = await availableCameras();
-    if (_cameras == null || _cameras!.isEmpty) {
-      return;
-    }
-
-    // カメラコントローラーを初期化
-    _controller = CameraController(
-      _cameras![0],
-      ResolutionPreset.high,
-      enableAudio: false,
-    );
-
     try {
+      // まず利用可能なカメラを取得
+      _cameras = await availableCameras();
+      if (_cameras == null || _cameras!.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('カメラが見つかりません')),
+          );
+          Navigator.pop(context);
+        }
+        return;
+      }
+
+      // カメラ権限をリクエスト
+      final status = await Permission.camera.request();
+      
+      if (status == PermissionStatus.denied) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('カメラへのアクセスが拒否されました'),
+              action: SnackBarAction(
+                label: '設定',
+                onPressed: () => openAppSettings(),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        }
+        return;
+      } else if (status == PermissionStatus.permanentlyDenied) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('カメラへのアクセス'),
+              content: const Text('カメラを使用するには、設定でアプリにカメラへのアクセスを許可してください。'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('キャンセル'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    openAppSettings();
+                  },
+                  child: const Text('設定を開く'),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
+      }
+
+      // カメラコントローラーを初期化
+      _controller = CameraController(
+        _cameras![0],
+        ResolutionPreset.high,
+        enableAudio: false,
+      );
+
       await _controller!.initialize();
       if (mounted) {
         setState(() {
@@ -59,6 +97,11 @@ class _CameraScreenState extends State<CameraScreen> {
       }
     } catch (e) {
       print('カメラ初期化エラー: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('カメラの初期化に失敗しました: $e')),
+        );
+      }
     }
   }
 
@@ -75,8 +118,16 @@ class _CameraScreenState extends State<CameraScreen> {
       final XFile photo = await _controller!.takePicture();
       
       if (mounted) {
-        // TODO: 画像プレビュー画面へ遷移
-        Navigator.pop(context, photo.path);
+        // 画像プレビュー画面へ遷移
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ImagePreviewScreen(
+              imagePath: photo.path,
+              mode: widget.mode,
+            ),
+          ),
+        );
       }
     } catch (e) {
       print('写真撮影エラー: $e');
