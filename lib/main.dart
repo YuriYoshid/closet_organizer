@@ -2,8 +2,19 @@ import 'package:closet_organizer/provider/closet_provider.dart';
 import 'package:closet_organizer/screen/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:io';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    await dotenv.load(fileName: "/Users/yuriyoshida/Desktop/closet_organizer/.env");
+    print('Loaded .env file successfully');
+  } catch (e) {
+    print('Error loading .env file: $e');
+  }
+  
   runApp(const MyApp());
 }
 

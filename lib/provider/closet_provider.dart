@@ -67,7 +67,7 @@ class ClosetProvider extends ChangeNotifier {
 // 衣類アイテムのモデル
 class ClothingItem {
   final String id;
-  final String name;
+  String name;  // finalを削除して変更可能に
   final String category;
   final String? imagePath;
   final DateTime createdAt;

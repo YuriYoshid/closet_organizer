@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'camera_screen.dart';
+import 'organize_area_selection_screen.dart';
 
 class OrganizeScreen extends StatelessWidget {
   const OrganizeScreen({Key? key}) : super(key: key);
@@ -37,7 +39,12 @@ class OrganizeScreen extends StatelessWidget {
             const SizedBox(height: 48),
             ElevatedButton.icon(
               onPressed: () {
-                // TODO: カメラ画面へ
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CameraScreen(mode: 'organize'),
+                  ),
+                );
               },
               icon: const Icon(Icons.analytics),
               label: const Text('空間分析を開始'),

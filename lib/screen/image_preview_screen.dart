@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-
 import 'package:uuid/uuid.dart';
+import 'item_recognition_screen.dart';
 
 class ImagePreviewScreen extends StatefulWidget {
   final String imagePath;
@@ -57,18 +57,27 @@ class _ImagePreviewScreenState extends State<ImagePreviewScreen> {
       // 画像を永続的な場所に保存
       final String savedPath = await _saveImageToAppDirectory(widget.imagePath);
       
-      // TODO: モードに応じて次の画面へ遷移
-      // 今はとりあえず保存成功を表示
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('画像を保存しました！次はAI分析を実装します'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        
-        // ホーム画面に戻る
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        if (widget.mode == 'declutter') {
+          // 断捨離モードの場合は認識画面へ
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ItemRecognitionScreen(
+                imagePath: savedPath,
+              ),
+            ),
+          );
+        } else {
+          // TODO: 他のモードの処理
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('画像を保存しました！'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       }
     } catch (e) {
       if (mounted) {
