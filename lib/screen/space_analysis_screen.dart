@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../widgets/loading_overlay.dart';
 import '../widgets/area_detail_form.dart';
 import 'organize_area_selection_screen.dart';
+import 'organize_suggestions_screen.dart';
 
 class SpaceAnalysisScreen extends StatefulWidget {
   final String imagePath;
@@ -422,7 +423,7 @@ class _SpaceAnalysisScreenState extends State<SpaceAnalysisScreen> {
             topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
-          gridData: FlGridData(
+          gridData: const FlGridData(
             show: true,
             drawVerticalLine: false,
             horizontalInterval: 1,
@@ -482,12 +483,18 @@ class _SpaceAnalysisScreenState extends State<SpaceAnalysisScreen> {
   }
 
   void _proceedToSuggestions() {
-    // TODO: AI提案画面へ遷移（Day 6で実装）
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('AI提案機能は明日実装予定です')),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OrganizeSuggestionsScreen(
+          imagePath: widget.imagePath,
+          areaDetails: _areaDetails,
+        ),
+      ),
     );
   }
-}
+  }
+
 
 // エリアハイライト用のCustomPainter
 class AreaHighlightPainter extends CustomPainter {

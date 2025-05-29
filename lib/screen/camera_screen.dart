@@ -118,16 +118,21 @@ class _CameraScreenState extends State<CameraScreen> {
       final XFile photo = await _controller!.takePicture();
       
       if (mounted) {
-        // 画像プレビュー画面へ遷移
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ImagePreviewScreen(
-              imagePath: photo.path,
-              mode: widget.mode,
+        if (widget.mode == 'daily') {
+          // デイリーモードの場合は画像パスを返す
+          Navigator.pop(context, photo.path);
+        } else {
+          // 画像プレビュー画面へ遷移
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ImagePreviewScreen(
+                imagePath: photo.path,
+                mode: widget.mode,
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
     } catch (e) {
       print('写真撮影エラー: $e');

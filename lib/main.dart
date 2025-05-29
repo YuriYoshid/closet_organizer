@@ -1,19 +1,26 @@
 import 'package:closet_organizer/provider/closet_provider.dart';
 import 'package:closet_organizer/screen/home_screen.dart';
+import 'package:closet_organizer/service/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'dart:io';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   try {
-    await dotenv.load(fileName: "/Users/yuriyoshida/Desktop/closet_organizer/.env");
+    await dotenv.load();
     print('Loaded .env file successfully');
   } catch (e) {
     print('Error loading .env file: $e');
   }
+  
+  // ロケールデータの初期化
+  await initializeDateFormatting('ja_JP', null);
+  
+  // 通知サービスを初期化
+  await NotificationService.initialize();
   
   runApp(const MyApp());
 }
